@@ -337,7 +337,7 @@ func matchAttr(src, tgt string) bool {
 	switch {
 	case src == Any || tgt == Any || src == tgt:
 		return true
-	case src == NA || tgt == NA || HasWildcard(tgt):
+	case src == NA || tgt == NA: // || HasWildcard(tgt): this has been removed because we will never put in a wildcard
 		return false
 	default:
 		return matchStr(src, tgt) != Disjoint

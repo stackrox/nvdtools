@@ -73,10 +73,10 @@ func (cm *cpeMatch) Match(attrs []*wfn.Attributes, requireVersion bool) (matches
 	return matches
 }
 
-func (cm *cpeMatch) MatchWithFixedIn(attrs []*wfn.Attributes, requireVersion bool) (matches []*wfn.AttributesWithFixedIn) {
+func (cm *cpeMatch) MatchWithFixedIn(attrs []*wfn.Attributes, requireVersion bool) (matches []wfn.AttributesWithFixedIn) {
 	for _, attr := range attrs {
 		if fixedIn, match := cm.matchWithFixedIn(attr, requireVersion); match {
-			matches = append(matches, &wfn.AttributesWithFixedIn{
+			matches = append(matches, wfn.AttributesWithFixedIn{
 				Attributes: attr,
 				FixedIn:    fixedIn,
 			})

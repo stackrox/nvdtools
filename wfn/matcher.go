@@ -22,7 +22,7 @@ type Matcher interface {
 
 	// MatchWithFixedIn returns AttributesWithFixedIn which contains the matching attribute and a fixed in
 	// version if applicable
-	MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []*AttributesWithFixedIn
+	MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []AttributesWithFixedIn
 
 	// Config returns all attributes that are used by in the matching process
 	Config() []*Attributes
@@ -76,7 +76,7 @@ type multiMatcher struct {
 }
 
 // MatchWithFixedIn is part of the Matcher interface
-func (mm *multiMatcher) MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []*AttributesWithFixedIn {
+func (mm *multiMatcher) MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []AttributesWithFixedIn {
 	matched := make(map[AttributesWithFixedIn]struct{})
 	for _, matcher := range mm.matchers {
 		matches := matcher.MatchWithFixedIn(attrs, requireVersion)
@@ -85,13 +85,13 @@ func (mm *multiMatcher) MatchWithFixedIn(attrs []*Attributes, requireVersion boo
 			return nil
 		}
 		for _, m := range matches {
-			matched[*m] = struct{}{}
+			matched[m] = struct{}{}
 		}
 	}
 
-	matches := make([]*AttributesWithFixedIn, 0, len(matched))
+	matches := make([]AttributesWithFixedIn, 0, len(matched))
 	for m := range matched {
-		matches = append(matches, &m)
+		matches = append(matches, m)
 	}
 	return matches
 }

@@ -68,6 +68,13 @@ type Attributes struct {
 	Language  string
 }
 
+// AttributesWithFixedIn defines a struct that wraps an attribute with a version that contains
+// a fixed in version that can be used when evaluating the attribute against vulns
+type AttributesWithFixedIn struct {
+	*Attributes
+	FixedIn string
+}
+
 // NewAttributesWithNA allocates Attributes object with all fields initialized to NA logical value
 func NewAttributesWithNA() *Attributes {
 	return newAttributes(NA)

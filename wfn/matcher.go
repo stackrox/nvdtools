@@ -19,6 +19,11 @@ type Matcher interface {
 	// Match returns attributes which match it
 	// if require version, then Matcher which matches all versions should return false
 	Match(attrs []*Attributes, requireVersion bool) (matches []*Attributes)
+
+	// MatchWithFixedIn returns AttributesWithFixedIn which contains the matching attribute and a fixed in
+	// version if applicable
+	MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []AttributesWithFixedIn
+
 	// Config returns all attributes that are used by in the matching process
 	Config() []*Attributes
 }
@@ -68,6 +73,27 @@ type multiMatcher struct {
 	matchers []Matcher
 	// if true, match will only return something if all matchers matched at least something
 	allMatch bool
+}
+
+// MatchWithFixedIn is part of the Matcher interface
+func (mm *multiMatcher) MatchWithFixedIn(attrs []*Attributes, requireVersion bool) []AttributesWithFixedIn {
+	matched := make(map[AttributesWithFixedIn]struct{})
+	for _, matcher := range mm.matchers {
+		matches := matcher.MatchWithFixedIn(attrs, requireVersion)
+		if mm.allMatch && len(matches) == 0 {
+			// all matchers need to match at least one attr
+			return nil
+		}
+		for _, m := range matches {
+			matched[m] = struct{}{}
+		}
+	}
+
+	matches := make([]AttributesWithFixedIn, 0, len(matched))
+	for m := range matched {
+		matches = append(matches, m)
+	}
+	return matches
 }
 
 // Match is part of the Matcher interface

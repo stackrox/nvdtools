@@ -74,10 +74,17 @@ func (m *andMatcher) Match(attrs []*wfn.Attributes, requireVersion bool) []*wfn.
 	return m.m2.Match(m.m1.Match(attrs, requireVersion), requireVersion)
 }
 
-func (m *andMatcher) MatchWithFixedIn(attrs []*wfn.Attributes, requireVersion bool) ([]*wfn.Attributes, []string) {
+func (m *andMatcher) MatchWithFixedIn(attrs []*wfn.Attributes, requireVersion bool) []*wfn.AttributesWithFixedIn {
+	// If we match an AND, then two separate attributes matched so there is no single fix version
 	matches := m.Match(attrs, requireVersion)
-	fixedInValues := make([]string, len(matches))
-	return matches, fixedInValues
+
+	matchesWithFixedIn := make([]*wfn.AttributesWithFixedIn, 0, len(matches))
+	for _, attr := range matches {
+		matchesWithFixedIn = append(matchesWithFixedIn, &wfn.AttributesWithFixedIn{
+			Attributes: attr,
+		})
+	}
+	return matchesWithFixedIn
 }
 
 // Attrs is a part of the wfn.Matcher interface

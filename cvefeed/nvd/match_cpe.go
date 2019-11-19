@@ -73,16 +73,33 @@ func (cm *cpeMatch) Match(attrs []*wfn.Attributes, requireVersion bool) (matches
 	return matches
 }
 
-// Match implements wfn.Matcher interface
+func (cm *cpeMatch) MatchWithFixedIn(attrs []*wfn.Attributes, requireVersion bool) (matches []wfn.AttributesWithFixedIn) {
+	for _, attr := range attrs {
+		if fixedIn, match := cm.matchWithFixedIn(attr, requireVersion); match {
+			matches = append(matches, wfn.AttributesWithFixedIn{
+				Attributes: attr,
+				FixedIn:    fixedIn,
+			})
+		}
+	}
+	return matches
+}
+
 func (cm *cpeMatch) match(attr *wfn.Attributes, requireVersion bool) bool {
+	_, matches := cm.matchWithFixedIn(attr, requireVersion)
+	return matches
+}
+
+// Match implements wfn.Matcher interface
+func (cm *cpeMatch) matchWithFixedIn(attr *wfn.Attributes, requireVersion bool) (string, bool) {
 	if cm == nil || cm.Attributes == nil {
-		return false
+		return "", false
 	}
 
 	if requireVersion {
 		// if we require version, then we need either version ranges or version not to be *
 		if !cm.hasVersionRanges && cm.Attributes.Version == wfn.Any {
-			return false
+			return "", false
 		}
 	}
 
@@ -90,16 +107,16 @@ func (cm *cpeMatch) match(attr *wfn.Attributes, requireVersion bool) bool {
 
 	// check whether everything except for version matches
 	if !cm.Attributes.MatchWithoutVersion(attr) {
-		return false
+		return "", false
 	}
 
 	if cm.Attributes.Version == wfn.Any {
 		if !cm.hasVersionRanges {
 			// if version is any and doesn't have version ranges, then it matches any
-			return !requireVersion
+			return "", !requireVersion
 		} // otherwise we try to match it at the end of the function
 	} else if cm.Attributes.MatchOnlyVersion(attr) {
-		return true // version matched
+		return "", true // version matched
 	}
 
 	// if it got to here, it means:
@@ -107,26 +124,29 @@ func (cm *cpeMatch) match(attr *wfn.Attributes, requireVersion bool) bool {
 	//  - didn't match version, or require version was set and version was *
 
 	if !cm.hasVersionRanges {
-		return false
+		return "", false
 	}
 
 	// match version to ranges
 	ver := wfn.StripSlashes(attr.Version)
 
-	matches := true
-
-	if cm.versionStartIncluding != "" {
-		matches = matches && smartVerCmp(ver, cm.versionStartIncluding) >= 0
+	if cm.versionStartIncluding != "" && smartVerCmp(ver, cm.versionStartIncluding) < 0 {
+		return "", false
 	}
-	if cm.versionStartExcluding != "" {
-		matches = matches && smartVerCmp(ver, cm.versionStartExcluding) > 0
+	if cm.versionStartExcluding != "" && smartVerCmp(ver, cm.versionStartExcluding) <= 0 {
+		return "", false
 	}
-	if cm.versionEndIncluding != "" {
-		matches = matches && smartVerCmp(ver, cm.versionEndIncluding) <= 0
+	if cm.versionEndIncluding != "" && smartVerCmp(ver, cm.versionEndIncluding) > 0 {
+		return "", false
 	}
+	var fixedIn string
 	if cm.versionEndExcluding != "" {
-		matches = matches && smartVerCmp(ver, cm.versionEndExcluding) < 0
+		matchesEndExcluding := smartVerCmp(ver, cm.versionEndExcluding) < 0
+		if !matchesEndExcluding {
+			return "", false
+		}
+		fixedIn = cm.versionEndExcluding
 	}
 
-	return matches
+	return fixedIn, true
 }

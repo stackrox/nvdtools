@@ -41,6 +41,10 @@ func (a *Attributes) MatchOnlyVersion(attr *Attributes) bool {
 	return matchAttr(a.Version, attr.Version)
 }
 
+func matchTargetSW(src, tgt string) bool {
+	return matchAttr(src, tgt) && !(src == Any && tgt == `node\.js`)
+}
+
 // MatchWithoutVersion checks whether everything else besides the version matches
 func (a *Attributes) MatchWithoutVersion(attr *Attributes) bool {
 	if a == nil || attr == nil {
@@ -50,7 +54,7 @@ func (a *Attributes) MatchWithoutVersion(attr *Attributes) bool {
 		matchAttr(a.Vendor, attr.Vendor) && matchAttr(a.Part, attr.Part) &&
 		matchAttr(a.Update, attr.Update) && matchAttr(a.Edition, attr.Edition) &&
 		matchAttr(a.Language, attr.Language) && matchAttr(a.SWEdition, attr.SWEdition) &&
-		matchAttr(a.TargetHW, attr.TargetHW) && matchAttr(a.TargetSW, attr.TargetSW) &&
+		matchAttr(a.TargetHW, attr.TargetHW) && matchTargetSW(a.TargetSW, attr.TargetSW) &&
 		matchAttr(a.Other, attr.Other)
 }
 

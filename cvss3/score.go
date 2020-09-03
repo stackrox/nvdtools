@@ -57,7 +57,7 @@ func (v Vector) Score() float64 {
 
 // BaseScore returns base score of the vector
 func (v Vector) BaseScore() float64 {
-	i, e := v.impactScore(), v.exploitabilityScore()
+	i, e := v.ImpactScore(), v.ExploitabilityScore()
 	if i < 0 {
 		return 0
 	}
@@ -68,7 +68,8 @@ func (v Vector) BaseScore() float64 {
 	return roundUp(math.Min(c*(e+i), 10.0))
 }
 
-func (v Vector) impactScore() float64 {
+// ImpactScore returns impact score of the vector
+func (v Vector) ImpactScore() float64 {
 	iscBase := 1 -
 		(1-v.BaseMetrics.Confidentiality.weight())*
 			(1-v.BaseMetrics.Integrity.weight())*
@@ -80,7 +81,8 @@ func (v Vector) impactScore() float64 {
 	}
 }
 
-func (v Vector) exploitabilityScore() float64 {
+// ExploitabilityScore returns exploitability score of the vector
+func (v Vector) ExploitabilityScore() float64 {
 	return 8.22 *
 		v.BaseMetrics.AttackVector.weight() *
 		v.BaseMetrics.AttackComplexity.weight() *

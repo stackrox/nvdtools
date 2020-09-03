@@ -52,24 +52,25 @@ func (v Vector) Score() float64 {
 
 // BaseScore returns base score of the vector
 func (v Vector) BaseScore() float64 {
-	return v.baseScoreWith(v.impactScore(false))
+	return v.baseScoreWith(v.ImpactScore(false))
 }
 
 // TemporalScore returns temporal score of the vector
 func (v Vector) TemporalScore() float64 {
-	return v.temporalScoreWith(v.impactScore(false))
+	return v.temporalScoreWith(v.ImpactScore(false))
 }
 
 // EnvironmentalScore returns environmental score of the vector
 func (v Vector) EnvironmentalScore() float64 {
-	ai := math.Min(10, v.impactScore(true))
+	ai := math.Min(10, v.ImpactScore(true))
 	at := v.temporalScoreWith(ai)
 	return roundTo1Decimal((at + (10-at)*v.EnvironmentalMetrics.CollateralDamagePotential.weight()) * v.EnvironmentalMetrics.TargetDistribution.weight())
 }
 
 // helpers
 
-func (v Vector) impactScore(adjust bool) float64 {
+// ImpactScore returns impact score of the vector
+func (v Vector) ImpactScore(adjust bool) float64 {
 	c := v.BaseMetrics.ConfidentialityImpact.weight()
 	i := v.BaseMetrics.IntegrityImpact.weight()
 	a := v.BaseMetrics.AvailabilityImpact.weight()
@@ -83,6 +84,11 @@ func (v Vector) impactScore(adjust bool) float64 {
 	return 10.41 * (1 - (1-c)*(1-i)*(1-a))
 }
 
+// ExploitabilityScore returns exploitability score of the vector
+func (v Vector) ExploitabilityScore() float64 {
+	return 20 * v.BaseMetrics.AccessVector.weight() * v.BaseMetrics.AccessComplexity.weight() * v.BaseMetrics.Authentication.weight()
+}
+
 func (v Vector) temporalScoreWith(impact float64) float64 {
 	return roundTo1Decimal(v.baseScoreWith(impact) *
 		v.TemporalMetrics.Exploitablity.weight() *
@@ -94,6 +100,5 @@ func (v Vector) baseScoreWith(impact float64) float64 {
 	if impact == 0.0 {
 		return 0.0
 	}
-	exploitability := 20 * v.BaseMetrics.AccessVector.weight() * v.BaseMetrics.AccessComplexity.weight() * v.BaseMetrics.Authentication.weight()
-	return roundTo1Decimal((0.6*impact + 0.4*exploitability - 1.5) * 1.176)
+	return roundTo1Decimal((0.6*impact + 0.4*v.ExploitabilityScore() - 1.5) * 1.176)
 }

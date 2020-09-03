@@ -69,6 +69,7 @@ func (v Vector) EnvironmentalScore() float64 {
 
 // helpers
 
+// ImpactScore returns impact score of the vector
 func (v Vector) ImpactScore(adjust bool) float64 {
 	c := v.BaseMetrics.ConfidentialityImpact.weight()
 	i := v.BaseMetrics.IntegrityImpact.weight()
@@ -83,6 +84,7 @@ func (v Vector) ImpactScore(adjust bool) float64 {
 	return 10.41 * (1 - (1-c)*(1-i)*(1-a))
 }
 
+// ExploitabilityScore returns exploitability score of the vector
 func (v Vector) ExploitabilityScore() float64 {
 	return 20 * v.BaseMetrics.AccessVector.weight() * v.BaseMetrics.AccessComplexity.weight() * v.BaseMetrics.Authentication.weight()
 }

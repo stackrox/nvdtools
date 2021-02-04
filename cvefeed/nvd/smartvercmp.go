@@ -18,13 +18,13 @@ import (
 	"strings"
 )
 
-// smartVerCmp compares stringified versions of software.
+// SmartVerCmp compares stringified versions of software.
 // It tries to do the right thing for any type of versioning,
-// assuming v1 and v2 have the same version convension.
+// assuming v1 and v2 have the same version convention.
 // It will return meaningful result for "95SE" vs "98SP1" or for "16.3.2" vs. "3.7.0",
 // but not for "2000" vs "11.7".
 // Returns -1 if v1 < v2, 1 if v1 > v2 and 0 if v1 == v2.
-func smartVerCmp(v1, v2 string) int {
+func SmartVerCmp(v1, v2 string) int {
 	for s1, s2 := v1, v2; len(s1) > 0 && len(s2) > 0; {
 		num1, cmpTo1, skip1 := parseVerParts(s1)
 		num2, cmpTo2, skip2 := parseVerParts(s2)

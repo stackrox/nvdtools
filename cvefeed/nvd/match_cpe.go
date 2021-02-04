@@ -130,18 +130,18 @@ func (cm *cpeMatch) matchWithFixedIn(attr *wfn.Attributes, requireVersion bool) 
 	// match version to ranges
 	ver := wfn.StripSlashes(attr.Version)
 
-	if cm.versionStartIncluding != "" && smartVerCmp(ver, cm.versionStartIncluding) < 0 {
+	if cm.versionStartIncluding != "" && SmartVerCmp(ver, cm.versionStartIncluding) < 0 {
 		return "", false
 	}
-	if cm.versionStartExcluding != "" && smartVerCmp(ver, cm.versionStartExcluding) <= 0 {
+	if cm.versionStartExcluding != "" && SmartVerCmp(ver, cm.versionStartExcluding) <= 0 {
 		return "", false
 	}
-	if cm.versionEndIncluding != "" && smartVerCmp(ver, cm.versionEndIncluding) > 0 {
+	if cm.versionEndIncluding != "" && SmartVerCmp(ver, cm.versionEndIncluding) > 0 {
 		return "", false
 	}
 	var fixedIn string
 	if cm.versionEndExcluding != "" {
-		matchesEndExcluding := smartVerCmp(ver, cm.versionEndExcluding) < 0
+		matchesEndExcluding := SmartVerCmp(ver, cm.versionEndExcluding) < 0
 		if !matchesEndExcluding {
 			return "", false
 		}

@@ -43,6 +43,8 @@ func TestSmartVerCmp(t *testing.T) {
 		{"1.4", "1.02", 1},
 		{"5.0", "08.0", -1},
 		{"10.0", "1.0", 1},
+		{"1.2.3", "1.2.03", 0},
+		{"1.2c.3", "1.02.03", 1},
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("%q vs %q", c.v1, c.v2), func(t *testing.T) {
